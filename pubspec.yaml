@@ -1,0 +1,73 @@
+name: se_manager
+description: "Student Expense Manager - Track student deposits and withdrawals"
+publish_to: 'none'
+version: 1.0.0+1
+
+environment:
+  sdk: ^3.11.3
+
+dependencies:
+  flutter:
+    sdk: flutter
+
+  # Icons
+  cupertino_icons: ^1.0.8
+
+  # State Management
+  flutter_riverpod: ^2.6.1
+  riverpod_annotation: ^2.6.1
+
+  # Database (Drift / SQLite)
+  drift: ^2.25.0
+  sqlite3_flutter_libs: ^0.5.28
+  path_provider: ^2.1.5
+  path: ^1.9.1
+
+  # Navigation
+  go_router: ^14.8.1
+
+  # Charts
+  fl_chart: ^0.70.2
+
+  # Export
+  csv: ^6.0.0
+  pdf: ^3.11.2
+  printing: ^5.13.5
+  share_plus: ^10.1.4
+
+  # File picker (for backup/restore)
+  file_picker: ^8.1.7
+
+  # Persistence for settings
+  shared_preferences: ^2.3.4
+
+  # Formatting & Intl
+  intl: ^0.20.2
+
+  # Google Fonts
+  google_fonts: ^6.2.1
+
+  # UUID generation
+  uuid: ^4.5.1
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+
+  flutter_lints: ^6.0.0
+
+  # Drift code generation
+  drift_dev: ^2.25.0
+  build_runner: ^2.4.15
+  flutter_launcher_icons: ^0.14.3
+
+flutter:
+  uses-material-design: true
+  assets:
+    - assets/
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: true
+  image_path: "assets/Icon.png"
+  min_sdk_android: 21
