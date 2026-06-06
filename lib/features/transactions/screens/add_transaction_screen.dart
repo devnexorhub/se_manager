@@ -8,6 +8,7 @@ import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
 import '../../../providers/student_providers.dart';
 import '../../../providers/transaction_providers.dart';
+import '../../../providers/dashboard_providers.dart';
 
 /// Screen to add a new transaction (deposit or withdrawal).
 class AddTransactionScreen extends ConsumerStatefulWidget {
@@ -82,6 +83,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       ref.invalidate(studentTransactionsProvider(widget.studentId));
       ref.invalidate(studentBalanceProvider(widget.studentId));
       ref.invalidate(studentsStreamProvider);
+      ref.invalidate(dashboardDataProvider);
+      ref.invalidate(allTransactionsProvider);
 
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(

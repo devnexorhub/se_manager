@@ -9,6 +9,7 @@ import '../../../data/database/app_database.dart';
 import '../../../data/repositories/student_repository.dart';
 import '../../../providers/student_providers.dart';
 import '../../../providers/transaction_providers.dart';
+import '../../../providers/dashboard_providers.dart';
 
 /// Student detail screen showing balance header + transaction history.
 class StudentDetailScreen extends ConsumerWidget {
@@ -185,6 +186,8 @@ class _DetailBody extends ConsumerWidget {
                               studentTransactionsProvider(student.id));
                           ref.invalidate(
                               studentBalanceProvider(student.id));
+                          ref.invalidate(dashboardDataProvider);
+                          ref.invalidate(allTransactionsProvider);
                         }
                       },
                     );

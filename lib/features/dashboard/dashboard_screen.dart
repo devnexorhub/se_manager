@@ -101,7 +101,7 @@ class _DashboardBody extends ConsumerWidget {
               _SummaryCard(
                 icon: Icons.account_balance_wallet_rounded,
                 label: AppStrings.netBalance,
-                value: Formatters.currencyCompact(data.netBalance),
+                value: Formatters.currency(data.netBalance),
                 gradient: data.isPositive
                     ? AppColors.depositGradient
                     : AppColors.withdrawalGradient,
@@ -109,13 +109,13 @@ class _DashboardBody extends ConsumerWidget {
               _SummaryCard(
                 icon: Icons.arrow_downward_rounded,
                 label: AppStrings.totalDeposits,
-                value: Formatters.currencyCompact(data.totalDeposits),
+                value: Formatters.currency(data.totalDeposits),
                 gradient: AppColors.depositGradient,
               ),
               _SummaryCard(
                 icon: Icons.arrow_upward_rounded,
                 label: AppStrings.totalWithdrawals,
-                value: Formatters.currencyCompact(data.totalWithdrawals),
+                value: Formatters.currency(data.totalWithdrawals),
                 gradient: AppColors.withdrawalGradient,
               ),
             ],
@@ -253,14 +253,17 @@ class _SummaryCard extends StatelessWidget {
             child: Icon(icon, color: Colors.white, size: 20),
           ),
           const Spacer(),
-          Text(
-            value,
-            style: Theme.of(context).textTheme.titleLarge?.copyWith(
-                  color: Colors.white,
-                  fontWeight: FontWeight.w700,
-                ),
-            maxLines: 1,
-            overflow: TextOverflow.ellipsis,
+          FittedBox(
+            fit: BoxFit.scaleDown,
+            alignment: Alignment.centerLeft,
+            child: Text(
+              value,
+              style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                    color: Colors.white,
+                    fontWeight: FontWeight.w700,
+                  ),
+              maxLines: 1,
+            ),
           ),
           const SizedBox(height: 2),
           Text(

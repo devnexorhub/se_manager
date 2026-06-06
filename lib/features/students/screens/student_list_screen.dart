@@ -7,6 +7,8 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/app_database.dart';
 import '../../../providers/student_providers.dart';
+import '../../../providers/transaction_providers.dart';
+import '../../../providers/dashboard_providers.dart';
 
 /// Full-featured student list with search, swipe-to-delete, and FAB.
 class StudentListScreen extends ConsumerStatefulWidget {
@@ -174,6 +176,8 @@ class _StudentCard extends ConsumerWidget {
         // Invalidate providers so lists refresh
         ref.invalidate(studentsStreamProvider);
         ref.invalidate(studentCountProvider);
+        ref.invalidate(dashboardDataProvider);
+        ref.invalidate(allTransactionsProvider);
       },
       child: Card(
         child: InkWell(

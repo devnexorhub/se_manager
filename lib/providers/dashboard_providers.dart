@@ -2,8 +2,15 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'student_providers.dart';
 import 'transaction_providers.dart';
 
-/// Aggregated dashboard data — loaded once and refreshed when needed.
+/// Aggregated dashboard data — reactively updates when transactions change.
 final dashboardDataProvider = FutureProvider<DashboardData>((ref) async {
+  // Watch the transaction stream so we re-compute whenever the table changes.
+  // This triggers a rebuild on every insert / update / delete.
+  ref.watch(allTransactionsProvider);
+
+  // Also re-compute when the student list changes (add / delete student).
+  ref.watch(studentsStreamProvider);
+
   final studentRepo = ref.watch(studentRepositoryProvider);
   final txRepo = ref.watch(transactionRepositoryProvider);
 
