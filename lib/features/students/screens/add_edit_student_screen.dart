@@ -5,13 +5,19 @@ import 'package:go_router/go_router.dart';
 import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/validators.dart';
+import '../../../providers/category_providers.dart';
 import '../../../providers/student_providers.dart';
 
-/// Screen to create or edit a student.
+/// Screen to create or edit a student/member.
 class AddEditStudentScreen extends ConsumerStatefulWidget {
-  const AddEditStudentScreen({super.key, this.studentId});
+  const AddEditStudentScreen({
+    super.key,
+    this.studentId,
+    required this.categoryId,
+  });
 
   final int? studentId;
+  final int categoryId;
 
   bool get isEditing => studentId != null;
 
@@ -66,15 +72,22 @@ class _AddEditStudentScreenState extends ConsumerState<AddEditStudentScreen> {
           id: widget.studentId!,
           name: name,
           contact: contact,
+          categoryId: widget.categoryId,
           createdAt: student.createdAt,
         );
       } else {
-        await repo.add(name: name, contact: contact);
+        await repo.add(
+          name: name,
+          contact: contact,
+          categoryId: widget.categoryId,
+        );
       }
 
-      // Refresh student list
+      // Refresh providers
       ref.invalidate(studentsStreamProvider);
+      ref.invalidate(studentsByCategoryProvider(widget.categoryId));
       ref.invalidate(studentCountProvider);
+      ref.invalidate(categoryMemberCountProvider(widget.categoryId));
       if (widget.isEditing) {
         ref.invalidate(studentByIdProvider(widget.studentId!));
       }
@@ -84,8 +97,8 @@ class _AddEditStudentScreenState extends ConsumerState<AddEditStudentScreen> {
           SnackBar(
             content: Text(
               widget.isEditing
-                  ? 'Student updated successfully'
-                  : 'Student added successfully',
+                  ? 'Member updated successfully'
+                  : 'Member added successfully',
             ),
             backgroundColor: AppColors.success,
           ),
@@ -113,7 +126,7 @@ class _AddEditStudentScreenState extends ConsumerState<AddEditStudentScreen> {
     return Scaffold(
       appBar: AppBar(
         title: Text(
-            widget.isEditing ? AppStrings.editStudent : AppStrings.addStudent),
+            widget.isEditing ? AppStrings.editMember : AppStrings.addMember),
       ),
       body: SingleChildScrollView(
         padding: const EdgeInsets.all(24),
@@ -144,7 +157,7 @@ class _AddEditStudentScreenState extends ConsumerState<AddEditStudentScreen> {
               TextFormField(
                 controller: _nameController,
                 decoration: const InputDecoration(
-                  labelText: AppStrings.studentName,
+                  labelText: AppStrings.memberName,
                   prefixIcon: Icon(Icons.person_outline_rounded),
                 ),
                 textCapitalization: TextCapitalization.words,
@@ -185,8 +198,8 @@ class _AddEditStudentScreenState extends ConsumerState<AddEditStudentScreen> {
                     _isSaving
                         ? 'Saving…'
                         : widget.isEditing
-                            ? 'Update Student'
-                            : 'Add Student',
+                            ? 'Update Member'
+                            : 'Add Member',
                     style: theme.textTheme.titleMedium?.copyWith(
                       color: Colors.white,
                       fontWeight: FontWeight.w600,

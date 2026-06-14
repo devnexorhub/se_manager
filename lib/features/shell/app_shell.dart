@@ -9,7 +9,7 @@ class AppShell extends StatelessWidget {
 
   static const _tabs = [
     '/dashboard',
-    '/students',
+    '/categories',
     '/reports',
     '/settings',
   ];
@@ -39,9 +39,9 @@ class AppShell extends StatelessWidget {
             label: 'Dashboard',
           ),
           NavigationDestination(
-            icon: Icon(Icons.people_outline_rounded),
-            selectedIcon: Icon(Icons.people_rounded),
-            label: 'Students',
+            icon: Icon(Icons.category_outlined),
+            selectedIcon: Icon(Icons.category_rounded),
+            label: 'Categories',
           ),
           NavigationDestination(
             icon: Icon(Icons.bar_chart_outlined),

@@ -12,30 +12,52 @@ class StudentRepository {
 
   // ── Read ────────────────────────────────────────────────────────
 
-  /// Watch all students (sorted by name).
+  /// Watch all students (sorted by name) — global.
   Stream<List<Student>> watchAll() => studentDao.watchAll();
+
+  /// Watch students in a specific category.
+  Stream<List<Student>> watchByCategory(int categoryId) =>
+      studentDao.watchByCategory(categoryId);
 
   /// Get all students.
   Future<List<Student>> getAll() => studentDao.getAll();
 
+  /// Get students in a specific category.
+  Future<List<Student>> getByCategory(int categoryId) =>
+      studentDao.getByCategory(categoryId);
+
   /// Get a single student.
   Future<Student> getById(int id) => studentDao.getById(id);
 
-  /// Search students by name.
+  /// Search students by name (global).
   Stream<List<Student>> searchByName(String query) =>
       studentDao.watchBySearch(query);
+
+  /// Search students by name within a category.
+  Stream<List<Student>> searchByNameInCategory(
+          int categoryId, String query) =>
+      studentDao.watchBySearchInCategory(categoryId, query);
 
   /// Total student count.
   Future<int> count() => studentDao.count();
 
+  /// Count in a specific category.
+  Future<int> countByCategory(int categoryId) =>
+      studentDao.countByCategory(categoryId);
+
   // ── Write ───────────────────────────────────────────────────────
 
   /// Add a new student. Returns the auto-generated ID.
-  Future<int> add({required String name, String? contact}) {
+  Future<int> add({
+    required String name,
+    String? contact,
+    required int categoryId,
+  }) {
     return studentDao.insertStudent(
       StudentsCompanion.insert(
         name: name,
         contact: Value(contact),
+        categoryId: categoryId,
       ),
     );
   }
@@ -45,6 +67,7 @@ class StudentRepository {
     required int id,
     required String name,
     String? contact,
+    required int categoryId,
     required DateTime createdAt,
   }) {
     return studentDao.updateStudent(
@@ -52,6 +75,7 @@ class StudentRepository {
         id: Value(id),
         name: Value(name),
         contact: Value(contact),
+        categoryId: Value(categoryId),
         createdAt: Value(createdAt),
       ),
     );

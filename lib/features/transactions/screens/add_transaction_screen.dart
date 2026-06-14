@@ -6,15 +6,21 @@ import '../../../core/constants/app_colors.dart';
 import '../../../core/constants/app_strings.dart';
 import '../../../core/constants/enums.dart';
 import '../../../core/utils/validators.dart';
+import '../../../providers/category_providers.dart';
 import '../../../providers/student_providers.dart';
 import '../../../providers/transaction_providers.dart';
 import '../../../providers/dashboard_providers.dart';
 
 /// Screen to add a new transaction (deposit or withdrawal).
 class AddTransactionScreen extends ConsumerStatefulWidget {
-  const AddTransactionScreen({super.key, required this.studentId});
+  const AddTransactionScreen({
+    super.key,
+    required this.studentId,
+    required this.categoryId,
+  });
 
   final int studentId;
+  final int categoryId;
 
   @override
   ConsumerState<AddTransactionScreen> createState() =>
@@ -82,6 +88,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
       // Refresh dependent providers
       ref.invalidate(studentTransactionsProvider(widget.studentId));
       ref.invalidate(studentBalanceProvider(widget.studentId));
+      ref.invalidate(studentsByCategoryProvider(widget.categoryId));
+      ref.invalidate(categoryBalanceProvider(widget.categoryId));
       ref.invalidate(studentsStreamProvider);
       ref.invalidate(dashboardDataProvider);
       ref.invalidate(allTransactionsProvider);

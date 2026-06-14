@@ -9,6 +9,7 @@ import '../../core/constants/app_strings.dart';
 import '../../core/constants/enums.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/database/app_database.dart';
+import '../../providers/category_providers.dart';
 import '../../providers/student_providers.dart';
 import '../../providers/transaction_providers.dart';
 
@@ -22,6 +23,7 @@ class ReportsScreen extends ConsumerStatefulWidget {
 
 class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   FilterPeriod _period = FilterPeriod.month;
+  int? _selectedCategoryId; // null = all categories
 
   DateTime get _fromDate {
     final now = DateTime.now();
@@ -36,8 +38,11 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
 
   @override
   Widget build(BuildContext context) {
-    final txAsync = ref.watch(allTransactionsProvider);
+    final txAsync = _selectedCategoryId == null
+        ? ref.watch(allTransactionsProvider)
+        : ref.watch(categoryTransactionsProvider(_selectedCategoryId!));
     final studentsAsync = ref.watch(studentsStreamProvider);
+    final categoriesAsync = ref.watch(categoriesStreamProvider);
 
     return Scaffold(
       appBar: AppBar(title: const Text(AppStrings.reports)),
@@ -48,15 +53,49 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
               .where((t) => t.createdAt.isAfter(_fromDate))
               .toList();
 
-          if (transactions.isEmpty) {
-            return _buildEmpty(context);
-          }
-
           return SingleChildScrollView(
             padding: const EdgeInsets.only(bottom: 32),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
+                // ── Category Filter ─────────────────────────────
+                categoriesAsync.when(
+                  data: (categories) {
+                    if (categories.isEmpty) return const SizedBox.shrink();
+                    return Padding(
+                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      child: SizedBox(
+                        height: 40,
+                        child: ListView(
+                          scrollDirection: Axis.horizontal,
+                          children: [
+                            _CategoryChip(
+                              label: AppStrings.allCategories,
+                              selected: _selectedCategoryId == null,
+                              onTap: () => setState(
+                                  () => _selectedCategoryId = null),
+                            ),
+                            const SizedBox(width: 8),
+                            ...categories.map((cat) => Padding(
+                                  padding: const EdgeInsets.only(right: 8),
+                                  child: _CategoryChip(
+                                    label: cat.name,
+                                    selected:
+                                        _selectedCategoryId == cat.id,
+                                    color: Color(cat.color),
+                                    onTap: () => setState(
+                                        () => _selectedCategoryId = cat.id),
+                                  ),
+                                )),
+                          ],
+                        ),
+                      ),
+                    );
+                  },
+                  loading: () => const SizedBox.shrink(),
+                  error: (_, _) => const SizedBox.shrink(),
+                ),
+
                 // ── Period Selector ──────────────────────────────
                 _PeriodSelector(
                   selected: _period,
@@ -64,28 +103,32 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                 ),
                 const SizedBox(height: 8),
 
-                // ── Bar Chart ────────────────────────────────────
-                _SectionTitle(title: 'Deposits vs Withdrawals'),
-                _BarChartWidget(transactions: transactions),
+                if (transactions.isEmpty) ...[
+                  _buildEmpty(context),
+                ] else ...[
+                  // ── Bar Chart ────────────────────────────────────
+                  _SectionTitle(title: 'Deposits vs Withdrawals'),
+                  _BarChartWidget(transactions: transactions),
 
-                // ── Pie Chart ────────────────────────────────────
-                _SectionTitle(title: 'Top Students by Deposits'),
-                studentsAsync.when(
-                  data: (students) => _PieChartWidget(
-                    transactions: transactions,
-                    students: students,
+                  // ── Pie Chart ────────────────────────────────────
+                  _SectionTitle(title: 'Top Members by Deposits'),
+                  studentsAsync.when(
+                    data: (students) => _PieChartWidget(
+                      transactions: transactions,
+                      students: students,
+                    ),
+                    loading: () =>
+                        const Center(child: CircularProgressIndicator()),
+                    error: (_, _) => const SizedBox.shrink(),
                   ),
-                  loading: () =>
-                      const Center(child: CircularProgressIndicator()),
-                  error: (_, _) => const SizedBox.shrink(),
-                ),
 
-                // ── Line Chart ───────────────────────────────────
-                _SectionTitle(title: 'Balance Trend'),
-                _LineChartWidget(
-                  transactions: transactions,
-                  period: _period,
-                ),
+                  // ── Line Chart ───────────────────────────────────
+                  _SectionTitle(title: 'Balance Trend'),
+                  _LineChartWidget(
+                    transactions: transactions,
+                    period: _period,
+                  ),
+                ],
               ],
             ),
           );
@@ -97,20 +140,67 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
   }
 
   Widget _buildEmpty(BuildContext context) {
-    return Center(
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(Icons.bar_chart_rounded,
-              size: 80,
-              color: Theme.of(context).colorScheme.primary.withAlpha(60)),
-          const SizedBox(height: 16),
-          Text('No data for this period',
-              style: Theme.of(context).textTheme.headlineMedium),
-          const SizedBox(height: 8),
-          Text('Add some transactions to see reports',
-              style: Theme.of(context).textTheme.bodyMedium),
-        ],
+    return SizedBox(
+      height: 300,
+      child: Center(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            Icon(Icons.bar_chart_rounded,
+                size: 80,
+                color: Theme.of(context).colorScheme.primary.withAlpha(60)),
+            const SizedBox(height: 16),
+            Text('No data for this period',
+                style: Theme.of(context).textTheme.headlineMedium),
+            const SizedBox(height: 8),
+            Text('Add some transactions to see reports',
+                style: Theme.of(context).textTheme.bodyMedium),
+          ],
+        ),
+      ),
+    );
+  }
+}
+
+// ═════════════════════════════════════════════════════════════════════════
+//  CATEGORY CHIP
+// ═════════════════════════════════════════════════════════════════════════
+
+class _CategoryChip extends StatelessWidget {
+  const _CategoryChip({
+    required this.label,
+    required this.selected,
+    required this.onTap,
+    this.color,
+  });
+
+  final String label;
+  final bool selected;
+  final VoidCallback onTap;
+  final Color? color;
+
+  @override
+  Widget build(BuildContext context) {
+    final c = color ?? AppColors.primary;
+    return GestureDetector(
+      onTap: onTap,
+      child: AnimatedContainer(
+        duration: const Duration(milliseconds: 200),
+        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        decoration: BoxDecoration(
+          color: selected ? c.withAlpha(30) : Colors.transparent,
+          borderRadius: BorderRadius.circular(20),
+          border: Border.all(
+            color: selected ? c : Colors.grey.withAlpha(60),
+          ),
+        ),
+        child: Text(
+          label,
+          style: Theme.of(context).textTheme.labelMedium?.copyWith(
+                color: selected ? c : null,
+                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
+              ),
+        ),
       ),
     );
   }

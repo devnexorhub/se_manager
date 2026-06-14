@@ -24,6 +24,10 @@ class TransactionRepository {
   /// Get all transactions globally.
   Future<List<TransactionEntry>> getAll() => transactionDao.getAll();
 
+  /// Watch all transactions for a specific category.
+  Stream<List<TransactionEntry>> watchByCategory(int categoryId) =>
+      transactionDao.watchByCategory(categoryId);
+
   /// Watch transactions filtered by type.
   Stream<List<TransactionEntry>> watchByType(int studentId, String type) =>
       transactionDao.watchByStudentAndType(studentId, type);
@@ -39,6 +43,11 @@ class TransactionRepository {
   /// Get the most recent N transactions.
   Future<List<TransactionEntry>> getRecent(int limit) =>
       transactionDao.getRecent(limit);
+
+  /// Get the most recent N transactions for a category.
+  Future<List<TransactionEntry>> getRecentByCategory(
+          int categoryId, int limit) =>
+      transactionDao.getRecentByCategory(categoryId, limit);
 
   // ── Write ───────────────────────────────────────────────────────
 
@@ -92,6 +101,21 @@ class TransactionRepository {
   Future<double> globalNetBalance() async {
     final deposits = await globalTotalDeposits();
     final withdrawals = await globalTotalWithdrawals();
+    return deposits - withdrawals;
+  }
+
+  /// Total deposits for a category.
+  Future<double> totalDepositsByCategory(int categoryId) =>
+      transactionDao.totalDepositsByCategory(categoryId);
+
+  /// Total withdrawals for a category.
+  Future<double> totalWithdrawalsByCategory(int categoryId) =>
+      transactionDao.totalWithdrawalsByCategory(categoryId);
+
+  /// Category net balance.
+  Future<double> categoryNetBalance(int categoryId) async {
+    final deposits = await totalDepositsByCategory(categoryId);
+    final withdrawals = await totalWithdrawalsByCategory(categoryId);
     return deposits - withdrawals;
   }
 }

@@ -2,6 +2,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import '../data/database/app_database.dart';
+import '../data/database/daos/category_dao.dart';
 import '../data/database/daos/student_dao.dart';
 import '../data/database/daos/transaction_dao.dart';
 
@@ -28,6 +29,10 @@ final databaseProvider = Provider<AppDatabase>((ref) {
 });
 
 /// DAO providers.
+final categoryDaoProvider = Provider<CategoryDao>((ref) {
+  return ref.watch(databaseProvider).categoryDao;
+});
+
 final studentDaoProvider = Provider<StudentDao>((ref) {
   return ref.watch(databaseProvider).studentDao;
 });

@@ -39,6 +39,18 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
         .get();
   }
 
+  /// Watch transactions for all students in a specific category.
+  Stream<List<TransactionEntry>> watchByCategory(int categoryId) {
+    final studentIds = selectOnly(students)
+      ..addColumns([students.id])
+      ..where(students.categoryId.equals(categoryId));
+
+    return (select(transactions)
+          ..where((t) => t.studentId.isInQuery(studentIds))
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)]))
+        .watch();
+  }
+
   /// Filter transactions by type for a student.
   Stream<List<TransactionEntry>> watchByStudentAndType(
     int studentId,
@@ -123,9 +135,49 @@ class TransactionDao extends DatabaseAccessor<AppDatabase>
     return row.read(sum) ?? 0.0;
   }
 
+  /// Total deposits for all students in a category.
+  Future<double> totalDepositsByCategory(int categoryId) async {
+    final sum = transactions.amount.sum();
+    final query = selectOnly(transactions).join([
+      innerJoin(students, students.id.equalsExp(transactions.studentId)),
+    ])
+      ..addColumns([sum])
+      ..where(students.categoryId.equals(categoryId) &
+          transactions.type.equals('deposit'));
+    final row = await query.getSingle();
+    return row.read(sum) ?? 0.0;
+  }
+
+  /// Total withdrawals for all students in a category.
+  Future<double> totalWithdrawalsByCategory(int categoryId) async {
+    final sum = transactions.amount.sum();
+    final query = selectOnly(transactions).join([
+      innerJoin(students, students.id.equalsExp(transactions.studentId)),
+    ])
+      ..addColumns([sum])
+      ..where(students.categoryId.equals(categoryId) &
+          transactions.type.equals('withdrawal'));
+    final row = await query.getSingle();
+    return row.read(sum) ?? 0.0;
+  }
+
   /// Recent N transactions globally.
   Future<List<TransactionEntry>> getRecent(int limit) {
     return (select(transactions)
+          ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
+          ..limit(limit))
+        .get();
+  }
+
+  /// Recent N transactions for a category.
+  Future<List<TransactionEntry>> getRecentByCategory(
+      int categoryId, int limit) {
+    final studentIds = selectOnly(students)
+      ..addColumns([students.id])
+      ..where(students.categoryId.equals(categoryId));
+
+    return (select(transactions)
+          ..where((t) => t.studentId.isInQuery(studentIds))
           ..orderBy([(t) => OrderingTerm.desc(t.createdAt)])
           ..limit(limit))
         .get();

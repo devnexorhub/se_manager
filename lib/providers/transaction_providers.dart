@@ -28,6 +28,12 @@ final allTransactionsProvider = StreamProvider<List<TransactionEntry>>((ref) {
   return ref.watch(transactionRepositoryProvider).watchAll();
 });
 
+/// Watch all transactions for a specific category.
+final categoryTransactionsProvider =
+    StreamProvider.family<List<TransactionEntry>, int>((ref, categoryId) {
+  return ref.watch(transactionRepositoryProvider).watchByCategory(categoryId);
+});
+
 /// Most recent N transactions.
 final recentTransactionsProvider =
     FutureProvider.family<List<TransactionEntry>, int>((ref, limit) {
@@ -71,6 +77,26 @@ final globalNetBalanceProvider = FutureProvider<double>((ref) {
 });
 
 // ═══════════════════════════════════════════════════════════════════════
+//  CATEGORY-SCOPED AGGREGATED DATA
+// ═══════════════════════════════════════════════════════════════════════
+
+/// Category total deposits.
+final categoryDepositsProvider =
+    FutureProvider.family<double, int>((ref, categoryId) {
+  return ref
+      .watch(transactionRepositoryProvider)
+      .totalDepositsByCategory(categoryId);
+});
+
+/// Category total withdrawals.
+final categoryWithdrawalsProvider =
+    FutureProvider.family<double, int>((ref, categoryId) {
+  return ref
+      .watch(transactionRepositoryProvider)
+      .totalWithdrawalsByCategory(categoryId);
+});
+
+// ═══════════════════════════════════════════════════════════════════════
 //  FILTER STATE (used by transaction lists)
 // ═══════════════════════════════════════════════════════════════════════
 
@@ -79,4 +105,4 @@ final transactionTypeFilterProvider = StateProvider<String?>((ref) => null);
 
 /// Selected date range filter.
 final transactionDateRangeProvider =
-    StateProvider<({DateTime from, DateTime to})?> ((ref) => null);
+    StateProvider<({DateTime from, DateTime to})?>((ref) => null);

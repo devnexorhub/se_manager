@@ -7,17 +7,37 @@ class AppStrings {
 
   // ── Navigation ───────────────────────────────────────────────────
   static const String dashboard = 'Dashboard';
+  static const String categories = 'Categories';
   static const String students = 'Students';
   static const String reports = 'Reports';
   static const String settings = 'Settings';
+
+  // ── Category ─────────────────────────────────────────────────────
+  static const String addCategory = 'Add Category';
+  static const String editCategory = 'Edit Category';
+  static const String deleteCategory = 'Delete Category';
+  static const String categoryName = 'Category Name';
+  static const String description = 'Description';
+  static const String searchCategories = 'Search categories…';
+  static const String totalCategories = 'Total Categories';
+  static const String allCategories = 'All Categories';
+  static const String selectCategory = 'Select Category';
+
+  // ── Members ──────────────────────────────────────────────────────
+  static const String members = 'Members';
+  static const String addMember = 'Add Member';
+  static const String editMember = 'Edit Member';
+  static const String deleteMember = 'Delete Member';
 
   // ── Student ──────────────────────────────────────────────────────
   static const String addStudent = 'Add Student';
   static const String editStudent = 'Edit Student';
   static const String deleteStudent = 'Delete Student';
   static const String studentName = 'Student Name';
+  static const String memberName = 'Member Name';
   static const String contactInfo = 'Contact Info';
   static const String searchStudents = 'Search students…';
+  static const String searchMembers = 'Search members…';
 
   // ── Transactions ─────────────────────────────────────────────────
   static const String addTransaction = 'Add Transaction';
@@ -36,6 +56,7 @@ class AppStrings {
 
   // ── Dashboard ────────────────────────────────────────────────────
   static const String totalStudents = 'Total Students';
+  static const String totalMembers = 'Total Members';
   static const String moneyHeld = 'Money Held';
   static const String recentTransactions = 'Recent Transactions';
 

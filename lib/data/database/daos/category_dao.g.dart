@@ -1,18 +1,18 @@
 // GENERATED CODE - DO NOT MODIFY BY HAND
 
-part of 'transaction_dao.dart';
+part of 'category_dao.dart';
 
 // ignore_for_file: type=lint
-mixin _$TransactionDaoMixin on DatabaseAccessor<AppDatabase> {
+mixin _$CategoryDaoMixin on DatabaseAccessor<AppDatabase> {
   $CategoriesTable get categories => attachedDatabase.categories;
   $StudentsTable get students => attachedDatabase.students;
   $TransactionsTable get transactions => attachedDatabase.transactions;
-  TransactionDaoManager get managers => TransactionDaoManager(this);
+  CategoryDaoManager get managers => CategoryDaoManager(this);
 }
 
-class TransactionDaoManager {
-  final _$TransactionDaoMixin _db;
-  TransactionDaoManager(this._db);
+class CategoryDaoManager {
+  final _$CategoryDaoMixin _db;
+  CategoryDaoManager(this._db);
   $$CategoriesTableTableManager get categories =>
       $$CategoriesTableTableManager(_db.attachedDatabase, _db.categories);
   $$StudentsTableTableManager get students =>

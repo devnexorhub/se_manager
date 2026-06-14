@@ -7,6 +7,7 @@ import '../../core/constants/app_colors.dart';
 import '../../core/constants/app_strings.dart';
 import '../../core/utils/formatters.dart';
 import '../../data/database/app_database.dart';
+
 import '../../providers/dashboard_providers.dart';
 import '../../providers/student_providers.dart';
 import '../../providers/transaction_providers.dart';
@@ -147,7 +148,7 @@ class _DashboardBody extends ConsumerWidget {
                 ),
                 const Spacer(),
                 TextButton(
-                  onPressed: () => context.go('/students'),
+                  onPressed: () => context.go('/categories'),
                   child: const Text('View All'),
                 ),
               ],
@@ -175,7 +176,7 @@ class _DashboardBody extends ConsumerWidget {
                       ),
                       const SizedBox(height: 4),
                       Text(
-                        'Add a student and start recording',
+                        'Create a category and start recording',
                         style: theme.textTheme.bodySmall,
                       ),
                     ],
@@ -207,6 +208,7 @@ class _DashboardBody extends ConsumerWidget {
     );
   }
 }
+
 
 // ═════════════════════════════════════════════════════════════════════════
 //  SUMMARY CARD
@@ -502,70 +504,66 @@ class _RecentTxTile extends ConsumerWidget {
 
     return Card(
       margin: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => context.go('/students/${tx.studentId}'),
-        child: Padding(
-          padding: const EdgeInsets.all(14),
-          child: Row(
-            children: [
-              // ── Icon ─────────────────────────────────────────────
-              Container(
-                width: 42,
-                height: 42,
-                decoration: BoxDecoration(
-                  color: color.withAlpha(25),
-                  borderRadius: BorderRadius.circular(12),
-                ),
-                child: Icon(
-                  isDeposit
-                      ? Icons.arrow_downward_rounded
-                      : Icons.arrow_upward_rounded,
-                  color: color,
-                  size: 22,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.all(14),
+        child: Row(
+          children: [
+            // ── Icon ─────────────────────────────────────────────
+            Container(
+              width: 42,
+              height: 42,
+              decoration: BoxDecoration(
+                color: color.withAlpha(25),
+                borderRadius: BorderRadius.circular(12),
               ),
-              const SizedBox(width: 14),
+              child: Icon(
+                isDeposit
+                    ? Icons.arrow_downward_rounded
+                    : Icons.arrow_upward_rounded,
+                color: color,
+                size: 22,
+              ),
+            ),
+            const SizedBox(width: 14),
 
-              // ── Details ──────────────────────────────────────────
-              Expanded(
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    studentAsync.when(
-                      data: (s) => Text(
-                        s.name,
-                        style: theme.textTheme.titleSmall,
-                        maxLines: 1,
-                        overflow: TextOverflow.ellipsis,
-                      ),
-                      loading: () => const SizedBox(height: 16),
-                      error: (_, _) =>
-                          Text('Student #${tx.studentId}',
-                              style: theme.textTheme.titleSmall),
+            // ── Details ──────────────────────────────────────────
+            Expanded(
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  studentAsync.when(
+                    data: (s) => Text(
+                      s.name,
+                      style: theme.textTheme.titleSmall,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
                     ),
-                    const SizedBox(height: 2),
-                    Text(
-                      Formatters.relative(tx.createdAt),
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: theme.textTheme.bodySmall?.color
-                            ?.withAlpha(140),
-                      ),
+                    loading: () => const SizedBox(height: 16),
+                    error: (_, _) =>
+                        Text('Member #${tx.studentId}',
+                            style: theme.textTheme.titleSmall),
+                  ),
+                  const SizedBox(height: 2),
+                  Text(
+                    Formatters.relative(tx.createdAt),
+                    style: theme.textTheme.bodySmall?.copyWith(
+                      color: theme.textTheme.bodySmall?.color
+                          ?.withAlpha(140),
                     ),
-                  ],
-                ),
+                  ),
+                ],
               ),
+            ),
 
-              // ── Amount ───────────────────────────────────────────
-              Text(
-                '${isDeposit ? '+' : '-'} ${Formatters.currency(tx.amount)}',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  color: color,
-                  fontWeight: FontWeight.w700,
-                ),
+            // ── Amount ───────────────────────────────────────────
+            Text(
+              '${isDeposit ? '+' : '-'} ${Formatters.currency(tx.amount)}',
+              style: theme.textTheme.titleMedium?.copyWith(
+                color: color,
+                fontWeight: FontWeight.w700,
               ),
-            ],
-          ),
+            ),
+          ],
         ),
       ),
     );

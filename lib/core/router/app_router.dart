@@ -4,7 +4,9 @@ import 'package:go_router/go_router.dart';
 import '../../features/splash/splash_screen.dart';
 import '../../features/shell/app_shell.dart';
 import '../../features/dashboard/dashboard_screen.dart';
-import '../../features/students/screens/student_list_screen.dart';
+import '../../features/categories/screens/category_list_screen.dart';
+import '../../features/categories/screens/add_edit_category_screen.dart';
+import '../../features/categories/screens/category_detail_screen.dart';
 import '../../features/students/screens/add_edit_student_screen.dart';
 import '../../features/students/screens/student_detail_screen.dart';
 import '../../features/transactions/screens/add_transaction_screen.dart';
@@ -37,39 +39,95 @@ final appRouter = GoRouter(
           ),
         ),
         GoRoute(
-          path: '/students',
+          path: '/categories',
           pageBuilder: (context, state) => const NoTransitionPage(
-            child: StudentListScreen(),
+            child: CategoryListScreen(),
           ),
           routes: [
+            // ── Add Category ───────────────────────────────────
             GoRoute(
               path: 'add',
               parentNavigatorKey: _rootNavigatorKey,
-              builder: (context, state) => const AddEditStudentScreen(),
+              builder: (context, state) => const AddEditCategoryScreen(),
             ),
+
+            // ── Category Detail (Members List) ─────────────────
             GoRoute(
-              path: ':id',
+              path: ':catId',
               parentNavigatorKey: _rootNavigatorKey,
               builder: (context, state) {
-                final id = int.parse(state.pathParameters['id']!);
-                return StudentDetailScreen(studentId: id);
+                final catId = int.parse(state.pathParameters['catId']!);
+                return CategoryDetailScreen(categoryId: catId);
               },
               routes: [
+                // ── Edit Category ──────────────────────────────
                 GoRoute(
                   path: 'edit',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) {
-                    final id = int.parse(state.pathParameters['id']!);
-                    return AddEditStudentScreen(studentId: id);
+                    final catId =
+                        int.parse(state.pathParameters['catId']!);
+                    return AddEditCategoryScreen(categoryId: catId);
                   },
                 ),
+
+                // ── Add Member ─────────────────────────────────
                 GoRoute(
-                  path: 'transaction/add',
+                  path: 'members/add',
                   parentNavigatorKey: _rootNavigatorKey,
                   builder: (context, state) {
-                    final id = int.parse(state.pathParameters['id']!);
-                    return AddTransactionScreen(studentId: id);
+                    final catId =
+                        int.parse(state.pathParameters['catId']!);
+                    return AddEditStudentScreen(categoryId: catId);
                   },
+                ),
+
+                // ── Member Detail ──────────────────────────────
+                GoRoute(
+                  path: 'members/:id',
+                  parentNavigatorKey: _rootNavigatorKey,
+                  builder: (context, state) {
+                    final catId =
+                        int.parse(state.pathParameters['catId']!);
+                    final id = int.parse(state.pathParameters['id']!);
+                    return StudentDetailScreen(
+                      studentId: id,
+                      categoryId: catId,
+                    );
+                  },
+                  routes: [
+                    // ── Edit Member ────────────────────────────
+                    GoRoute(
+                      path: 'edit',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      builder: (context, state) {
+                        final catId =
+                            int.parse(state.pathParameters['catId']!);
+                        final id =
+                            int.parse(state.pathParameters['id']!);
+                        return AddEditStudentScreen(
+                          studentId: id,
+                          categoryId: catId,
+                        );
+                      },
+                    ),
+
+                    // ── Add Transaction ────────────────────────
+                    GoRoute(
+                      path: 'transaction/add',
+                      parentNavigatorKey: _rootNavigatorKey,
+                      builder: (context, state) {
+                        final catId =
+                            int.parse(state.pathParameters['catId']!);
+                        final id =
+                            int.parse(state.pathParameters['id']!);
+                        return AddTransactionScreen(
+                          studentId: id,
+                          categoryId: catId,
+                        );
+                      },
+                    ),
+                  ],
                 ),
               ],
             ),

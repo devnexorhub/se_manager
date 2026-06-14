@@ -7,22 +7,29 @@ import '../../../core/constants/app_strings.dart';
 import '../../../core/utils/formatters.dart';
 import '../../../data/database/app_database.dart';
 import '../../../data/repositories/student_repository.dart';
+import '../../../providers/category_providers.dart';
 import '../../../providers/student_providers.dart';
 import '../../../providers/transaction_providers.dart';
 import '../../../providers/dashboard_providers.dart';
 
 /// Student detail screen showing balance header + transaction history.
 class StudentDetailScreen extends ConsumerWidget {
-  const StudentDetailScreen({super.key, required this.studentId});
+  const StudentDetailScreen({
+    super.key,
+    required this.studentId,
+    required this.categoryId,
+  });
 
   final int studentId;
+  final int categoryId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
     final studentAsync = ref.watch(studentByIdProvider(studentId));
 
     return studentAsync.when(
-      data: (student) => _DetailBody(student: student),
+      data: (student) =>
+          _DetailBody(student: student, categoryId: categoryId),
       loading: () =>
           const Scaffold(body: Center(child: CircularProgressIndicator())),
       error: (e, _) =>
@@ -36,9 +43,10 @@ class StudentDetailScreen extends ConsumerWidget {
 // ═════════════════════════════════════════════════════════════════════════
 
 class _DetailBody extends ConsumerWidget {
-  const _DetailBody({required this.student});
+  const _DetailBody({required this.student, required this.categoryId});
 
   final Student student;
+  final int categoryId;
 
   @override
   Widget build(BuildContext context, WidgetRef ref) {
@@ -57,8 +65,8 @@ class _DetailBody extends ConsumerWidget {
             actions: [
               IconButton(
                 icon: const Icon(Icons.edit_rounded),
-                onPressed: () =>
-                    context.go('/students/${student.id}/edit'),
+                onPressed: () => context.go(
+                    '/categories/$categoryId/members/${student.id}/edit'),
               ),
             ],
           ),
@@ -186,6 +194,8 @@ class _DetailBody extends ConsumerWidget {
                               studentTransactionsProvider(student.id));
                           ref.invalidate(
                               studentBalanceProvider(student.id));
+                          ref.invalidate(
+                              categoryBalanceProvider(categoryId));
                           ref.invalidate(dashboardDataProvider);
                           ref.invalidate(allTransactionsProvider);
                         }
@@ -218,8 +228,8 @@ class _DetailBody extends ConsumerWidget {
             elevation: 6,
             shadowColor: AppColors.primary.withAlpha(80),
           ),
-          onPressed: () =>
-              context.go('/students/${student.id}/transaction/add'),
+          onPressed: () => context.go(
+              '/categories/$categoryId/members/${student.id}/transaction/add'),
           icon: const Icon(Icons.add_rounded, size: 20),
           label: const Text(
             'Transaction',
