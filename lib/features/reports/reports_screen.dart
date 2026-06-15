@@ -63,9 +63,9 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   data: (categories) {
                     if (categories.isEmpty) return const SizedBox.shrink();
                     return Padding(
-                      padding: const EdgeInsets.fromLTRB(16, 8, 16, 0),
+                      padding: const EdgeInsets.fromLTRB(16, 12, 16, 0),
                       child: SizedBox(
-                        height: 40,
+                        height: 42,
                         child: ListView(
                           scrollDirection: Axis.horizontal,
                           children: [
@@ -96,12 +96,14 @@ class _ReportsScreenState extends ConsumerState<ReportsScreen> {
                   error: (_, _) => const SizedBox.shrink(),
                 ),
 
+                const SizedBox(height: 10),
+
                 // ── Period Selector ──────────────────────────────
                 _PeriodSelector(
                   selected: _period,
                   onChanged: (p) => setState(() => _period = p),
                 ),
-                const SizedBox(height: 8),
+                const SizedBox(height: 4),
 
                 if (transactions.isEmpty) ...[
                   _buildEmpty(context),
@@ -181,25 +183,61 @@ class _CategoryChip extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
     final c = color ?? AppColors.primary;
+
     return GestureDetector(
       onTap: onTap,
       child: AnimatedContainer(
-        duration: const Duration(milliseconds: 200),
-        padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 8),
+        duration: const Duration(milliseconds: 250),
+        curve: Curves.easeOut,
+        alignment: Alignment.center,
+        padding: const EdgeInsets.symmetric(horizontal: 16),
         decoration: BoxDecoration(
-          color: selected ? c.withAlpha(30) : Colors.transparent,
-          borderRadius: BorderRadius.circular(20),
+          gradient: selected
+              ? LinearGradient(
+                  colors: [c, c.withAlpha(180)],
+                  begin: Alignment.topLeft,
+                  end: Alignment.bottomRight,
+                )
+              : null,
+          color: selected
+              ? null
+              : (isDark
+                  ? Colors.white.withAlpha(8)
+                  : Colors.black.withAlpha(8)),
+          borderRadius: BorderRadius.circular(24),
           border: Border.all(
-            color: selected ? c : Colors.grey.withAlpha(60),
+            color: selected
+                ? Colors.transparent
+                : (isDark
+                    ? Colors.white.withAlpha(25)
+                    : Colors.black.withAlpha(18)),
+            width: 1,
           ),
+          boxShadow: selected
+              ? [
+                  BoxShadow(
+                    color: c.withAlpha(60),
+                    blurRadius: 10,
+                    offset: const Offset(0, 3),
+                  ),
+                ]
+              : [],
         ),
         child: Text(
           label,
-          style: Theme.of(context).textTheme.labelMedium?.copyWith(
-                color: selected ? c : null,
-                fontWeight: selected ? FontWeight.w600 : FontWeight.w400,
-              ),
+          style: theme.textTheme.labelMedium?.copyWith(
+            color: selected
+                ? Colors.white
+                : (isDark
+                    ? Colors.white.withAlpha(180)
+                    : Colors.black.withAlpha(150)),
+            fontWeight: selected ? FontWeight.w700 : FontWeight.w500,
+            letterSpacing: 0.2,
+            height: 1.0,
+          ),
         ),
       ),
     );
@@ -240,6 +278,9 @@ class _PeriodSelector extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final isDark = theme.brightness == Brightness.dark;
+
     return SizedBox(
       height: 44,
       child: ListView.separated(
@@ -250,17 +291,70 @@ class _PeriodSelector extends StatelessWidget {
         itemBuilder: (context, index) {
           final period = FilterPeriod.values[index];
           final isSelected = period == selected;
-          return ChoiceChip(
-            label: Text(period.label),
-            selected: isSelected,
-            onSelected: (_) => onChanged(period),
-            selectedColor: AppColors.primary.withAlpha(30),
-            labelStyle: TextStyle(
-              color: isSelected ? AppColors.primary : null,
-              fontWeight: isSelected ? FontWeight.w600 : FontWeight.w400,
-            ),
-            side: BorderSide(
-              color: isSelected ? AppColors.primary : Colors.grey.withAlpha(60),
+          return GestureDetector(
+            onTap: () => onChanged(period),
+            child: AnimatedContainer(
+              duration: const Duration(milliseconds: 250),
+              curve: Curves.easeOut,
+              alignment: Alignment.center,
+              padding: const EdgeInsets.symmetric(horizontal: 16),
+              decoration: BoxDecoration(
+                gradient: isSelected
+                    ? const LinearGradient(
+                        colors: [AppColors.primary, AppColors.primaryLight],
+                        begin: Alignment.topLeft,
+                        end: Alignment.bottomRight,
+                      )
+                    : null,
+                color: isSelected
+                    ? null
+                    : (isDark
+                        ? Colors.white.withAlpha(8)
+                        : Colors.black.withAlpha(8)),
+                borderRadius: BorderRadius.circular(24),
+                border: Border.all(
+                  color: isSelected
+                      ? Colors.transparent
+                      : (isDark
+                          ? Colors.white.withAlpha(25)
+                          : Colors.black.withAlpha(18)),
+                  width: 1,
+                ),
+                boxShadow: isSelected
+                    ? [
+                        BoxShadow(
+                          color: AppColors.primary.withAlpha(50),
+                          blurRadius: 10,
+                          offset: const Offset(0, 3),
+                        ),
+                      ]
+                    : [],
+              ),
+              child: Row(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.center,
+                children: [
+                  if (isSelected) ...[
+                    const Icon(Icons.check_rounded,
+                        size: 15, color: Colors.white),
+                    const SizedBox(width: 5),
+                  ],
+                  Text(
+                    period.label,
+                    style: theme.textTheme.labelMedium?.copyWith(
+                      color: isSelected
+                          ? Colors.white
+                          : (isDark
+                              ? Colors.white.withAlpha(180)
+                              : Colors.black.withAlpha(150)),
+                      fontWeight:
+                          isSelected ? FontWeight.w700 : FontWeight.w500,
+                      letterSpacing: 0.2,
+                      height: 1.0,
+                    ),
+                  ),
+                ],
+              ),
             ),
           );
         },
